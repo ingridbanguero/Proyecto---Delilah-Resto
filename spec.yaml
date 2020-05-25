@@ -1,0 +1,581 @@
+swagger: "2.0"
+info:
+  description: "This document contains the information and specifications necessary to access and use the Delilah Restó API."
+  version: "1.0.0"
+  title: "Delilah Restó"
+  termsOfService: "http://delilah-resto/terms/"
+  contact:
+    email: "apiteam@delilahresto.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "localhost"
+basePath: "/v1"
+tags:
+- name: "users"
+  description: "Access to user information"
+- name: "products"
+  description: "Add, edit and delete products"
+- name: "orders"
+  description: "Access and edit to orders"
+schemes:
+- "https"
+- "http"
+paths:
+  /users:
+    get:
+      tags:
+      - "users"
+      summary: "Returns registered users"
+      description: "Returns all users registered in the website"
+      operationId: "getUsers"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "header"
+        name: "Authorization"
+        description: "Authentication for JSON Web Token"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "sucessful operation"
+          schema:
+            type: "array"
+            items: 
+              $ref: '#/definitions/user_registered'
+      security:
+        - resto_auth:
+          - "write:users"
+    post:
+      tags:
+      - "users"
+      summary: "Add a user"
+      description: "Add a new user to the database"
+      operationId: "createUser"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "User object that needs to be register to the website"
+        required: true
+        schema:
+          $ref: '#/definitions/user_register'
+      responses:
+        201:
+          description: "User created"
+        400: 
+          description: "Missing arguments"
+        409:
+          description: "Username already exists"
+  
+  /users/login:
+    post:
+      tags: 
+      - "users"
+      summary: "User login"
+      description: "User login to the website"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "credentials"
+        description: "Username and password"
+        required: true
+        schema: 
+          type: "object"
+          properties:
+            username:
+              type: "string"
+            password: 
+              type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema: 
+            type: "string"
+        400: 
+          description: "Invalid name or Wrong Password"
+  
+  /products:
+    get:
+      tags:
+      - "products"
+      summary: "Returns all products"
+      description: "Returns all products register in the Database"
+      operationId: "getproducts"
+      produces:
+        - "application/json"
+      parameters: []
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: "array"
+            items: 
+              $ref: "#/definitions/product_instock"
+    post:
+      tags: 
+      - "products"
+      summary: "Add a new product"
+      description: "Add new products to the database"
+      operationId: "addProduct"
+      consumes:
+        - "application/json"
+      produces: 
+        - "application/json"
+      parameters:
+        - in: "header"
+          name: "authorization"
+          description: "Authentication JWT"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "body"
+          description: "Product to add to the database"
+          required: true
+          schema:
+            $ref: '#/definitions/product_upload'
+      responses:
+        201:
+          description: "created"
+          schema:
+            type: "object"
+            properties: 
+              productId:
+                type: "number"
+        400:
+          description: "Missing Arguments"
+        401: 
+          description: "Token has expired. Try again"
+        403:
+          description: "Forbidden"
+      security:
+        - resto_auth:
+          - "write:products"
+  
+  /products/{productId}:
+    put:
+      tags:
+        - "products"
+      summary: "Update a product"
+      description: "Update an existing product"
+      operationId: "updateProduct"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "productId"
+          in: "path"
+          description: "id to the product to update"
+          required: true
+          type: "integer"
+          format: "int64"
+        - in: "header"
+          name: "authorization"
+          description: "Authentication JWT"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "body"
+          description: "Product properties to update"
+          required: true
+          schema: 
+            $ref: "#/definitions/product_upload"
+      responses:
+        202:
+          description: "Acepted"
+          schema: 
+            $ref: "#/definitions/product_instock"
+        401:
+          description: "Token has expired. Please login again"
+        403:
+          description: "Forbidden"
+        404:
+          description: "Product not found"
+      security:
+        - resto_auth:
+          - "write:products"
+
+    delete:
+      tags:
+        - "products"
+      summary: "Delete a product"
+      description: "Delete the selected product"
+      operationId: "deleteProduct"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "productId"
+          in: "path"
+          description: "Product id to delete"
+          required: true
+          type: "integer"
+          format: "intg64"
+        - in: "header"
+          name: "authorization"
+          description: "Authentication Token"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Deleted"
+        401:
+          description: "Token has expired. Please login again"
+        403:
+          description: "Forbidden"
+        404:
+          description: "Product not found"
+        409:
+          description: "Product linked to an active order. Please resolve conflict and try again"
+      security:
+        - resto_auth:
+          - "write:products"
+  /orders:
+    get:
+      tags:
+        - "orders"
+      summary: "Returns orders"
+      description: "Returns all registered orders"
+      operationId: "getOrders"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "header"
+          name: "authorization"
+          description: "Authorization JWT"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/order_complete"
+      security:
+        - resto_auth:
+          - "write:orders"
+    post:
+      tags:
+        - "orders"
+      summary: "Add a new order"
+      description: "Add a new order to the database"
+      operationId: "addOrder"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Properties needed to create the order"
+          required: true
+          schema: 
+            $ref: "#/definitions/order_sent"
+      responses:
+        201:
+          description: "Created"
+          schema:
+            $ref: "#/definitions/order_complete"
+        400:
+          description: "User not found"
+        405:
+          description: "Missing Arguments"
+  
+  /orders/{orderId}:
+    put:
+      tags:
+        - "orders"
+      summary: "Update status"
+      description: "Uptate status of a order"
+      operationId: "updateOrder"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "path"
+          name: "orderId"
+          description: "Order id to update"
+          required: true
+          type: "integer"
+          format: "int64"
+        - in: "header"
+          name: "authorization"
+          description: "Authenticate JWT"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "body"
+          description: "Order status to modify"
+          required: true
+          schema:
+            $ref: "#/definitions/order_status"
+      responses:
+        202:
+          description: "Acepted"
+          schema:
+            $ref: "#/definitions/order_upload"
+        401:
+          description: "Token has expired. Please login again"
+        403:
+          description: "Forbidden"
+        404:
+          description: "Order not found"
+        405:
+          description: "Invalid status suplied"
+      security:
+        - resto_auth:
+          - "write:orders"
+    delete:
+      tags:
+        - "orders"
+      summary: "Delete an order"
+      description: "Delete an order to the database"
+      operationId: "deleteOrder"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "path"
+          name: "orderId"
+          description: "Order id to delete"
+          required: true
+          type: "integer"
+          format: "int64"
+        - in: "header"
+          name: "authorization"
+          description: "Authenticate JWT"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Deleted"
+        401:
+          description: "Token has expired. Please login again"
+        403:
+          description:  "Forbidden"
+        404:
+          description: "Order not found"
+      security:
+        - resto_auth:
+          - "write:users"
+            
+securityDefinitions:
+  resto_auth:
+    type: "oauth2"
+    authorizationUrl: "localhost/v1/users/login"
+    flow: "implicit"
+    scopes:
+      write:users: "Registered users"
+      write:products: "Create, modify and delete products"
+      write:orders: "Modify orders status"
+      
+definitions:
+  user_register:
+    type: "object"
+    properties:
+      username:
+        type: "string"
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      email:
+        type: "string"
+      password:
+        type: "string"
+      phone:
+        type: "string"
+        
+  user_registered:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      username:
+        type: "string"
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      email:
+        type: "string"
+      password:
+        type: "string"
+      phone:
+        type: "string"
+      is_admin:
+        type: "integer"
+        minimum: 0
+        maximum: 1
+        description: "Is an admin"
+  
+  product_instock:
+    type: "object"
+    required: 
+      - "id"
+      - "name"
+      - "photoUrl"
+      - "price"
+    properties: 
+      product_id:
+        type: "integer"
+        format: "int64"
+      product_name:
+        type: "string"
+        example: "Pizza"
+      product_price:
+        type: "number"
+      product_pnoto:
+        type: "array"
+        items:
+          type: "string"
+  product_upload:
+    type: "object"
+    required:
+      - "product_name"
+      - "product_photo"
+      - "product_price"
+    properties: 
+      product_name:
+        type: "string"
+        example: "Pizza"
+      product_photo:
+        type: "array"
+        items: 
+          type: "string"
+      product_price:
+        type: "number"
+        
+  order_sent:
+    type: "object"
+    properties: 
+      username:
+        type: "string"
+      products:
+        type: "array"
+        items:
+          $ref: "#/definitions/selected_item"
+      payment_method:
+        type: "string"
+        description: "Payment method selected by the user"
+        enum:
+          - "cash"
+          - "credit card"
+          
+  selected_item:
+    type: "object"
+    properties:
+      productId: 
+        type: "number"
+      quality:
+        type: "number"
+  order_status:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        description: "order status"
+        enum:
+          - "new"
+          - "confirmed"
+          - "preparing"
+          - "delivering"
+          - "delivered"
+  order_complete:
+    type: "object"
+    properties:
+      order_id:
+        type: "number"
+      order_status:
+        type: "string"
+        enum:
+          - "new"
+          - "confirmed"
+          - "preparing"
+          - "delivering"
+          - "delivered"
+      order_time:
+        type: "string"
+        example: "13:51:00"
+      order_description:
+        type: "string"
+        example: "1xPizza 2xDobleBurguer"
+      order_amount:
+        type: "number"
+      payment_method:
+        type: "string"
+        description: "Payment method used"
+        enum:
+         - "cash"
+         - "credit card"
+      user_id:
+        type: "number"
+      username:
+        type: "string"
+      name:
+        type: "string"
+      addres:
+        type: "string"
+      email:
+        type: "string"
+      phone_number:
+        type: "string"
+      product:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            product_quantity:
+              type: "number"
+            product_name:
+              type: "string"
+              example: "Pizza"
+            product_price:
+              type: "number"
+            product_photos:
+              type: "array"
+              items:
+                type: "string"
+  order_upload:
+    type: "object"
+    properties:
+      order_id:
+        type: "number"
+      order_status:
+        type: "string"
+        enum: 
+          - "new"
+          - "confirmed"
+          - "preparing"
+          - "delivering"
+          - "delivered"
+      order_time:
+        type: "string"
+        example: "15:39:20"
+      order_description:
+        type: "string"
+        example: "1xPizza 2xDobleBurguer"
+      order_amount:
+        type: "number"
+      payment_method:
+        type: "string"
+        description: "Payment method selected by the user"
+        enum: 
+          - "cash"
+          - "credit card"
+      user_id:
+        type: "number"
+        
+        
+        
+  
+  
