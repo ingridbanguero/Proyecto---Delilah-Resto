@@ -71,7 +71,7 @@ const getStream = require("get-stream");
 const productsData = async () => {
     const parseStream = csv({ delimiter: "," });
     const data = await getStream.array(
-      fs.createReadStream("./datasets/products.csv").pipe(parseStream)
+      fs.createReadStream("./database/datasets/products.csv").pipe(parseStream)
     );
     return data;
   };
@@ -98,7 +98,7 @@ const productsUpload = async () => {
 const usersData = async () => {
     const parseStream = csv({ delimiter: "," });
     const data = await getStream.array(
-      fs.createReadStream("./datasets/users.csv").pipe(parseStream)
+      fs.createReadStream("./database/datasets/users.csv").pipe(parseStream)
     );
     return data;
   };
@@ -127,8 +127,9 @@ const usersUpload = async () => {
         await sequelize.query(createDatabase(), {raw: true});
         await sequelize.query(usersTable(), {raw: true});
         await sequelize.query(productsTable(), {raw: true});
-        await productsUpload();
         await usersUpload();
+        await productsUpload();
+        
     }catch (err){
         throw new Error(err);
     }
