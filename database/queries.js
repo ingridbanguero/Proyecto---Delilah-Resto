@@ -49,11 +49,40 @@ function selectQuery(table, columns = "*", conditions = null){
     return query;
 }
 
+//UPDATE
+function updateQuery(table, changes, conditions) {
+    const query =
+      `UPDATE ${dbName}.${table} SET ${changes}` + `WHERE ${conditions}`;
+    return query;
+  }
+
+//DELETE
+function deleteQuery(table, conditions) {
+  const query = `DELETE FROM ${dbName}.${table} `+  `WHERE ${conditions}`;
+  return query;
+}
+
+// JOIN
+function joinQuery(mainTable, columns, joiners, conditions) {
+    const fullJoiners = joiners
+      .map((element) => `JOIN ${dbName}.${element} `)
+      .toString()
+      .replace(/,/g, "");
+    const query =
+      `SELECT ${columns} FROM ${dbName}.${mainTable}` +
+      ` ${fullJoiners}` +
+      `${conditions ? ` WHERE ${conditions}` : ""}`;
+    return query;
+  }
+
 module.exports = {
     createDatabase,
     usersTable,
     productsTable,
     useQuery,
     insertQuery,
-    selectQuery
+    selectQuery,
+    updateQuery,
+    deleteQuery,
+    joinQuery
 }
