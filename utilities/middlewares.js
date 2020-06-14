@@ -139,21 +139,6 @@ const {sequelize} = require("../database/config");
     );
     return foundProduct;
   }
-
-/*   async function existingOrderWithProduct(productId) {
-    const query = selectQuery(
-      "orders_products",
-      "*",
-      `product_id = ${productId}`
-    );
-    const [results] = await sequelize.query(query, { raw: true });
-    if (results.length) {
-      return true;
-      
-    } else {
-      return false;
-    }
-  } */
   
   async function findProductPrice(product) {
     const { productId, quantity } = product;
@@ -422,7 +407,7 @@ async function updateOrderStatus(req, res, next) {
   if (validStatus) {
     try {
       console.log("Hola")
-      const orderToUpdate = await findOrderbyId(id); // Esta linea no me esta funcionando :()
+      const orderToUpdate = await findOrderbyId(id); 
       console.log("Adios");
       if (orderToUpdate) {
         const query = updateQuery(
