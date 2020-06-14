@@ -10,7 +10,7 @@ Esta aplicación tiene como objetivo la creación del Backend para administrar e
 - Modificacion y eliminación de pedidos por parte del usuario administrador.
 
 ## Especificaciones OPEN API
-- [Documento Open API](/spec.yml)
+- [Documento Open API](/spec.yaml)
 
 ## Instalación
 ### Clonación del repositorio de GIT:
@@ -26,7 +26,7 @@ $ npm install
 ```
 ### Configuración de la base de datos
 
-####Configuración automatica
+#### Configuración automatica
 Esta es la forma mas recomendada para la instalación de la base de datos.
 - Ejecute un servidor MySQL
 - Ingrese al archivo `config.js` que se encuentra en el interior de la carpeta `database` y edite los parámetros para ingresar a la base de datos. Los parametros a editar son:
@@ -44,7 +44,7 @@ $ node database.js
 ```
 Esto creara el esquema de la base de datos con sus respectivas tablas e importara los datos que se encuentran en los archivos `productos.csv` y `usuarios.csv`. Estos archivos pueden ser modificados de acuerdo a las necesidades a la hora de crear la base de datos.
 
-####Configuración manual
+#### Configuración manual
 En caso de presentar algún problema con la instalación automatica recomendamos:
 - Inicializar el servidor MySQL.
 - Crear una base de datos llamada **delilah_resto** o con el nombre deseado. Puede hacer esto mediante la línea de comandos o directamente con la aplicación de escritorio.
