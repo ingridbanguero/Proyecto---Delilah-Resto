@@ -44,13 +44,6 @@ $ node database.js
 ```
 Esto creara el esquema de la base de datos con sus respectivas tablas e importara los datos que se encuentran en los archivos `productos.csv` y `usuarios.csv`. Estos archivos pueden ser modificados de acuerdo a las necesidades a la hora de crear la base de datos.
 
-#### Configuración manual
-En caso de presentar algún problema con la instalación automatica recomendamos:
-- Inicializar el servidor MySQL.
-- Crear una base de datos llamada **delilah_resto** o con el nombre deseado. Puede hacer esto mediante la línea de comandos o directamente con la aplicación de escritorio.
-- Cree el esquema y las tablas necesarias de acuerdo a las queries que se muestran en el archivo `database.sql`
-- Modifique los datos para ingresar a la base de datos ingresando al archivo `config.js`.
-
 ## Poner en funcionamieno el servidor
 Para poner en funcionamiento el servidor posicione una terminal en la carpeta base de los archivos e inicialice el archivo `index.js` con node o nodemon.
 ```

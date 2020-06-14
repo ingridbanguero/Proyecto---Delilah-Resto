@@ -1,7 +1,7 @@
 const JWT = require('jsonwebtoken');
 const firma = "delilah";
 
-const { findUserByUsername } = require("../utilities/middlewares");
+const { encontrarUsuarioPorNombreUsuario } = require("../utilities/middlewares");
 
 function validarAuth(req, res, next) {
     const token = req.headers.authorization;
@@ -18,7 +18,7 @@ function validarAuth(req, res, next) {
   async function validarCredenciales(req, res, next) {
     const { username, password } = req.body;
     try {
-      const registeredUser = await findUserByUsername(username);
+      const registeredUser = await encontrarUsuarioPorNombreUsuario(username);
       if (registeredUser) {
         const { password: dbPassword, is_admin } = registeredUser;
         if (password === dbPassword) {

@@ -6,16 +6,16 @@ const CORS = require('cors');
 
 const {
     crearProducto,
-    getProductos,
+    obtenerProductos,
     modificarProducto,
-    deleteProduct,
-    getUsers,
-    validateExistingUser,
-    registerUser,
-    createOrder,
-    listOrders,
-    updateOrderStatus,
-    deleteOrder,
+    borrarProducto,
+    obtenerUsuarios,
+    validarUsuarioExistente,
+    usuarioRegistrado,
+    crearOrden,
+    listaOrdenes,
+    modificarEstadoOrden,
+    borrarOrden,
 } = require("./utilities/middlewares");
 
 const { 
@@ -30,39 +30,39 @@ server.listen(3000, ()=>{
 })
 
 // PRODUCTS ENDPOINTS
-server.get("/products", getProductos, (req, res) =>{
+server.get("/products", obtenerProductos, (req, res) =>{
     const {productList} = req;
     res.status(200).json(productList);
 }) 
 
-server.get("/products/:productId", getProductos, (req, res) =>{
+server.get("/products/:productId", obtenerProductos, (req, res) =>{
     const {productList} = req;
     const productId = (req.params.productId - 1);
     res.status(200).json(productList[productId]);
-}) // Falta verificacion de que exista el producto
+})
 
 server.post("/products", validarAuth, crearProducto, (req, res)=>{
-    const {addProduct} = req;
-    res.status(201).json(addProduct);
+    const {productoAgregado} = req;
+    res.status(201).json(productoAgregado);
 })
 
 server.put("/products/:productId", validarAuth, modificarProducto, (req, res) => {
-    const { updatedProduct } = req;
-    res.status(202).json(updatedProduct);
+    const { productoModificado } = req;
+    res.status(202).json(productoModificado);
 });
   
-server.delete("/products/:productId", validarAuth, deleteProduct, (req, res) => {
-    const { isDeleted } = req;
-    isDeleted && res.status(200).json("Deleted");
+server.delete("/products/:productId", validarAuth, borrarProducto, (req, res) => {
+    const { esEliminado } = req;
+    esEliminado && res.status(200).json("Deleted");
 });
 
 // USERS ENDPOINTS
-server.get("/users/", validarAuth, getUsers, (req, res) => {
+server.get("/users/", validarAuth, obtenerUsuarios, (req, res) => {
     const { usersList } = req;
     res.status(200).json(usersList);
 });
 
-server.post("/users/register", validateExistingUser, registerUser, (req, res) => {
+server.post("/users/register", validarUsuarioExistente, usuarioRegistrado, (req, res) => {
     const { createdUserId } = req;
     res.status(201).json({ userId: createdUserId });
 });
@@ -74,48 +74,24 @@ server.post("/users/login", validarCredenciales, (req, res) => {
 }); 
 
 // ORDERS ENDPOINTS
-server.post("/orders/", createOrder, (req, res) => {
+server.post("/orders/", crearOrden, (req, res) => {
     const { createdOrder } = req;
     res.status(201).json(createdOrder);
 });
 
-server.get("/orders/", validarAuth, listOrders, (req, res) => {
+server.get("/orders/", validarAuth, listaOrdenes, (req, res) => {
     const { ordersList } = req;
     res.status(200).json(ordersList);
 });
 
-server.put("/orders/:orderId",validarAuth, updateOrderStatus, (req, res) => {
-      const { updatedOrder } = req;
-      res.status(202).json(updatedOrder);
+server.put("/orders/:orderId",validarAuth, modificarEstadoOrden, (req, res) => {
+      const { ordenModificada } = req;
+      res.status(202).json(ordenModificada);
 });
 
-server.delete("/orders/:orderId", validarAuth, deleteOrder, (req, res) => {
-    const { isDeleted } = req;
-    isDeleted && res.status(200).json("Deleted");
+server.delete("/orders/:orderId", validarAuth, borrarOrden, (req, res) => {
+    const { esEliminado } = req;
+    esEliminado && res.status(200).json("Deleted");
   });
 
 
-/* server.get("/orders/", validarAuth, listOrders, (req, res) => {
-    const { ordersList } = req;
-    res.status(200).json(ordersList);
-  });
-  
-  server.post("/orders/", createOrder, (req, res) => {
-    const { createdOrder } = req;
-    res.status(201).json(createdOrder);
-  });
-  
-  server.put(
-    "/v1/orders/:orderId",
-    validarAuth,
-    updateOrderStatus,
-    (req, res) => {
-      const { updatedOrder } = req;
-      res.status(202).json(updatedOrder);
-    }
-  );
-  
-  server.delete("/v1/orders/:orderId", validarAuth, deleteOrder, (req, res) => {
-    const { isDeleted } = req;
-    isDeleted && res.status(200).json("Deleted");
-  }); */
