@@ -1,12 +1,12 @@
 const {dbName} = require('./config');
 
 // CREATE DATABASE
-function createDatabase(){
+function crearDatabase(){
     return `CREATE SCHEMA IF NOT EXISTS ${dbName}`
 }
 
 // USERS TABLE
-function usersTable(){
+function tablaUsuarios(){
     return `CREATE TABLE IF NOT EXISTS ${dbName}.users (
         user_id INT UNSIGNED AUTO_INCREMENT,
         username VARCHAR(60) NOT NULL,
@@ -21,7 +21,7 @@ function usersTable(){
 }
 
 // PRODUCTS TABLE
-function productsTable(){
+function tablaProductos(){
     return `CREATE TABLE IF NOT EXISTS ${dbName}.products (
         product_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
         product_name VARCHAR(45) NOT NULL,
@@ -32,7 +32,7 @@ function productsTable(){
 }
 
 // ORDERS TABLE
-function ordersTable(){
+function tablaOrdenes(){
   return `CREATE TABLE IF NOT EXISTS ${dbName}.orders (
     order_id int unsigned NOT NULL AUTO_INCREMENT,
     order_status enum('new','confirmed','preparing','delivering','delivered') NOT NULL DEFAULT 'new',
@@ -48,7 +48,7 @@ function ordersTable(){
 }
 
 // ORDERS RELATIONSHIP TABLE QUERY
-function ordersRelationshipTable() {
+function tablaRelacionOrdenes() {
   return `CREATE TABLE IF NOT EXISTS ${dbName}.orders_products (
         relationship_id int unsigned NOT NULL AUTO_INCREMENT,
         order_id int unsigned NOT NULL,
@@ -107,11 +107,11 @@ function joinQuery(mainTable, columns, joiners, conditions) {
   }
 
 module.exports = {
-    createDatabase,
-    usersTable,
-    productsTable,
-    ordersTable,
-    ordersRelationshipTable,
+    crearDatabase,
+    tablaUsuarios,
+    tablaProductos,
+    tablaOrdenes,
+    tablaRelacionOrdenes,
     useQuery,
     insertQuery,
     selectQuery,

@@ -11,33 +11,33 @@ const {sequelize} = require("../database/config");
 // PRODUCTS
   
   // GET PRODUCTS
-  async function getProducts(req, res, next) {
+  async function getProductos(req, res, next) {
     try {
-      req.productList = await productsList();
+      req.productList = await listaProductos();
       next();
     } catch (err) {
       next(new Error(err));
     }
   }
 
-  async function productsList() {
+  async function listaProductos() {
     const query = selectQuery("products");
-    const [dbProducts] = await sequelize.query(query, { raw: true });
-    return dbProducts;
+    const [dbProductoos] = await sequelize.query(query, { raw: true });
+    return dbProductoos;
   }
 
   // POST PRODUCTS
   
-  async function createProduct(req, res, next) {
+  async function crearProducto(req, res, next) {
     const { product_name, product_photo, product_price } = req.body;
     if (product_name && product_photo && product_price >= 0) {
       try {
-        const createdProduct = await newProduct(
+        const productoCreado = await nuevoProducto(
           product_name,
           product_photo,
           product_price
         );
-        req.addedProduct = { productId: await createdProduct };
+        req.productoAgregado = { productId: await productoCreado };
         next();
       } catch (err) {
         next(new Error(err));
@@ -47,29 +47,29 @@ const {sequelize} = require("../database/config");
     }
   }
 
-  async function newProduct(product_name, product_photo, product_price) {
+  async function nuevoProducto(product_name, product_photo, product_price) {
     const query = insertQuery(
       "products",
       "product_name, product_photo, product_price",
       [product_name, product_photo, product_price]
     );
-    const [addedProduct] = await sequelize.query(query, { raw: true });
-    return addedProduct;
+    const [productoAgregado] = await sequelize.query(query, { raw: true });
+    return productoAgregado;
   }
 
   // UPDATE PRODUCTS
-  async function updateProduct(req, res, next) {
+  async function modificarProducto(req, res, next) {
     const id = +req.params.productId;
-    const updatedProperties = req.body;
+    const propiedadesModificadas = req.body;
     try {
-      const productToUpdate = await findProductById(id);
-      if (productToUpdate) {
-        const updatedProduct = await applyProductChanges(
-          productToUpdate,
-          updatedProperties
+      const productoAModificar = await encontrarProductoId(id);
+      if (productoAModificar) {
+        const productoModificado = await aplicarCambioProducto(
+          productoAModificar,
+          propiedadesModificadas
         );
-        const savedProduct = await updateProductInDb(id, updatedProduct);
-        req.updatedProduct = savedProduct;
+        const productoGuardado = await modificarProductoDb(id, productoModificado);
+        req.productoModificado = productoGuardado;
         next();
       } else {
         res.status(404).json("Product not found");
@@ -80,24 +80,24 @@ const {sequelize} = require("../database/config");
   }
 
  
-  async function applyProductChanges(productToUpdate, updatedProperties) {
-    const properties = Object.keys(updatedProperties).filter(
+  async function aplicarCambioProducto(productoAModificar, propiedadesModificadas) {
+    const properties = Object.keys(propiedadesModificadas).filter(
       (property) =>
-        updatedProperties[property] &&
-        updatedProperties[property] !== " " &&
-        updatedProperties[property] !== "null" &&
-        updatedProperties[property] !== "undefined" &&
-        !updatedProperties[property].toString().includes("  ")
+        propiedadesModificadas[property] &&
+        propiedadesModificadas[property] !== " " &&
+        propiedadesModificadas[property] !== "null" &&
+        propiedadesModificadas[property] !== "undefined" &&
+        !propiedadesModificadas[property].toString().includes("  ")
     );
-    newProperties = properties.reduce((obj, property) => {
-      obj[property] = updatedProperties[property];
+    nuevasPropiedades = properties.reduce((obj, property) => {
+      obj[property] = propiedadesModificadas[property];
       return obj;
     }, {});
-    const updatedProduct = { ...productToUpdate, ...newProperties };
-    return updatedProduct;
+    const productoModificado = { ...productoAModificar, ...nuevasPropiedades };
+    return productoModificado;
   }
 
-  async function updateProductInDb(id, product) {
+  async function modificarProductoDb(id, product) {
     const { product_name, product_photo, product_price } = product;
     const query = updateQuery(
       "products",
@@ -105,15 +105,15 @@ const {sequelize} = require("../database/config");
       `product_id = ${id}`
     );
     await sequelize.query(query, { raw: true });
-    const dbProduct = await findProductById(id);
-    return dbProduct;
+    const dbProducto = await encontrarProductoId(id);
+    return dbProducto;
   }
 
 // DELETE PRODUCTS
   async function deleteProduct(req, res, next) {
     const id = +req.params.productId;
     try {
-      const productToDelete = await findProductById(id);
+      const productToDelete = await encontrarProductoId(id);
       if (productToDelete) {
         const isDeleted = async () => {
           const query = deleteQuery("products", `product_id = ${id}`);
@@ -131,18 +131,18 @@ const {sequelize} = require("../database/config");
   }
   
   
-  async function findProductById(id) {
+  async function encontrarProductoId(id) {
     const query = selectQuery("products ", "*", `product_id = ${id}`);
-    const [dbProduct] = await sequelize.query(query, { raw: true });
-    const foundProduct = await dbProduct.find(
+    const [dbProducto] = await sequelize.query(query, { raw: true });
+    const encontrarProducto = await dbProducto.find(
       (element) => element.product_id === id
     );
-    return foundProduct;
+    return encontrarProducto;
   }
   
-  async function findProductPrice(product) {
+  async function encontrarPrecioProducto(product) {
     const { productId, quantity } = product;
-    const productPrice = (await findProductById(productId)).product_price;
+    const productPrice = (await encontrarProductoId(productId)).product_price;
     const subtotal = `${+productPrice * +quantity}`;
     return subtotal;
   }
@@ -207,23 +207,8 @@ const {sequelize} = require("../database/config");
   }
   // REGISTER USER
   async function registerUser(req, res, next) {
-    const {
-      username,
-      password,
-      name,
-      address,
-      email,
-      phone_number,
-      is_admin,
-    } = req.body;
-    if (
-      username &&
-      password &&
-      name &&
-      address &&
-      email &&
-      phone_number
-    ) {
+    const {username, password, name, address, email, phone_number, is_admin,} = req.body;
+    if (username && password && name && address && email && phone_number) {
       try {
         const query = insertQuery(
           "users ",
@@ -377,14 +362,14 @@ async function obtainOrderDescAndPrice(products) {
   let subtotal = 0;
   for (let i = 0; i < products.length; i++) {
     orderDescription = orderDescription + (await printDescName(products[i]));
-    subtotal = +subtotal + +(await findProductPrice(products[i]));
+    subtotal = +subtotal + +(await encontrarPrecioProducto(products[i]));
   }
   return [orderDescription, subtotal];
 }
 
 async function printDescName(product) {
   const { productId, quantity } = product;
-  const productName = (await findProductById(productId)).product_name;
+  const productName = (await encontrarProductoId(productId)).product_name;
   const productDesc = `${quantity}x${productName.slice(0, 5)} `;
   return productDesc;
 }
@@ -447,16 +432,16 @@ function validateStatus(submittedStatus) {
   module.exports = {
     getUsers,
     validateExistingUser,
-    applyProductChanges,
-    createProduct,
+    aplicarCambioProducto,
+    crearProducto,
     deleteProduct,
-    findProductById,
-    findProductPrice,
-    getProducts,
-    newProduct,
+    encontrarProductoId,
+    encontrarPrecioProducto,
+    getProductos,
+    nuevoProducto,
     registerUser,
-    updateProduct,
-    updateProductInDb,
+    modificarProducto,
+    modificarProductoDb,
     findUserByUsername,
     completeDesc,
     createOrder,

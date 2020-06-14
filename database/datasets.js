@@ -2,19 +2,19 @@ const csv = require("csv-parser");
 const fs = require("fs");
 const getStream = require("get-stream");
 
-const {useQuery, insertQuery, selectQuery} = require('./queries');
-const {dbName, sequelize} = require('./config');
+const {useQuery, insertQuery} = require('./queries');
+const {sequelize} = require('./config');
 // ADD PRODUCTS TO DATABASE
-const productsData = async () => {
+const datosProductos = async () => {
     const parseStream = csv({ delimiter: "," });
     const data = await getStream.array(
-      fs.createReadStream("./datasets/products.csv").pipe(parseStream)
+      fs.createReadStream("./datasets/productos.csv").pipe(parseStream)
     );
     return data;
   };
   
-const productsUpload = async () => {
-    const dataToUpload = await productsData();
+const cargarProductos = async () => {
+    const dataToUpload = await datosProductos();
     await sequelize.query(useQuery(), { raw: true });
     for (let i = 0; i < dataToUpload.length; i++) {
         try {
@@ -32,16 +32,16 @@ const productsUpload = async () => {
 };
 
 // ADD USERS TO DATABASE
-const usersData = async () => {
+const datosUsuarios = async () => {
     const parseStream = csv({ delimiter: "," });
     const data = await getStream.array(
-      fs.createReadStream("./datasets/users.csv").pipe(parseStream)
+      fs.createReadStream("./datasets/usuarios.csv").pipe(parseStream)
     );
     return data;
   };
   
-const usersUpload = async () => {
-    const dataToUpload = await usersData();
+const cargarUsuarios = async () => {
+    const dataToUpload = await datosUsuarios();
     await sequelize.query(useQuery(), { raw: true });
     for (let i = 0; i < dataToUpload.length; i++) {
         try {
@@ -59,6 +59,6 @@ const usersUpload = async () => {
 };
 
 module.exports = {
-    usersUpload,
-    productsUpload
+    cargarUsuarios,
+    cargarProductos
 }

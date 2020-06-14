@@ -3,7 +3,7 @@ const firma = "delilah";
 
 const { findUserByUsername } = require("../utilities/middlewares");
 
-function validateAuth(req, res, next) {
+function validarAuth(req, res, next) {
     const token = req.headers.authorization;
     const validatedUser = JWT.verify(token, firma);
     const { is_admin } = validatedUser;
@@ -15,7 +15,7 @@ function validateAuth(req, res, next) {
     }
   }
   
-  async function validateCredentials(req, res, next) {
+  async function validarCredenciales(req, res, next) {
     const { username, password } = req.body;
     try {
       const registeredUser = await findUserByUsername(username);
@@ -38,4 +38,4 @@ function validateAuth(req, res, next) {
     }
   }
   
-  module.exports = { validateAuth, validateCredentials };
+  module.exports = { validarAuth, validarCredenciales };
