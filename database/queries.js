@@ -30,6 +30,37 @@ function productsTable(){
         PRIMARY KEY (product_id)
     );`
 }
+
+// ORDERS TABLE
+function ordersTable(){
+  return `CREATE TABLE IF NOT EXISTS ${dbName}.orders (
+    order_id int unsigned NOT NULL AUTO_INCREMENT,
+    order_status enum('new','confirmed','preparing','delivering','delivered') NOT NULL DEFAULT 'new',
+    order_time time NOT NULL,
+    order_description varchar(45) NOT NULL,
+    order_amount int unsigned NOT NULL,
+    payment_method enum('cash','credit') NOT NULL,
+    user_id int unsigned NOT NULL,
+    PRIMARY KEY (order_id),
+    KEY user_id_idx (user_id),
+    CONSTRAINT user_id FOREIGN KEY (user_id) REFERENCES users (user_id)
+  );`
+}
+
+// ORDERS RELATIONSHIP TABLE QUERY
+function ordersRelationshipTable() {
+  return `CREATE TABLE IF NOT EXISTS ${dbName}.orders_products (
+        relationship_id int unsigned NOT NULL AUTO_INCREMENT,
+        order_id int unsigned NOT NULL,
+        product_id int unsigned NOT NULL,
+        product_quantity int unsigned NOT NULL,
+        PRIMARY KEY (relationship_id),
+        KEY order_id_idx (order_id),
+        KEY product_id_idx (product_id),
+        CONSTRAINT order_id FOREIGN KEY (order_id) REFERENCES orders (order_id) ON DELETE CASCADE,
+        CONSTRAINT product_id FOREIGN KEY (product_id) REFERENCES products (product_id) ON DELETE RESTRICT
+      );`
+}
 // USE
 function useQuery(){
     const query = "USE " + dbName;
@@ -79,6 +110,8 @@ module.exports = {
     createDatabase,
     usersTable,
     productsTable,
+    ordersTable,
+    ordersRelationshipTable,
     useQuery,
     insertQuery,
     selectQuery,

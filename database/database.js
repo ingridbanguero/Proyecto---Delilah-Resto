@@ -3,6 +3,8 @@ const {
     createDatabase,
     usersTable,
     productsTable,
+    ordersTable,
+    ordersRelationshipTable,
 } = require('./queries');
 const {sequelize} = require('./config');
 
@@ -11,6 +13,8 @@ const {sequelize} = require('./config');
         await sequelize.query(createDatabase(), {raw: true});
         await sequelize.query(usersTable(), {raw: true});
         await sequelize.query(productsTable(), {raw: true});
+        await sequelize.query(ordersTable(), {raw: true});
+        await sequelize.query(ordersRelationshipTable(), {raw: true});
         await usersUpload();
         await productsUpload();
         

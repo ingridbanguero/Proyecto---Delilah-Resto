@@ -1,6 +1,7 @@
 const JWT = require('jsonwebtoken');
-
 const firma = "delilah";
+
+const { findUserByUsername } = require("../utilities/middlewares");
 
 function validateAuth(req, res, next) {
     const token = req.headers.authorization;
@@ -22,7 +23,7 @@ function validateAuth(req, res, next) {
         const { password: dbPassword, is_admin } = registeredUser;
         if (password === dbPassword) {
           const token = JWT.sign({ username, is_admin }, firma, {
-            expiresIn: "15m",
+            expiresIn: "50m",
           });
           req.jwtToken = token;
           next();
